@@ -12,9 +12,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.google.common.base.Optional;
@@ -228,7 +230,6 @@ public class MainActivity extends AppCompatActivity
         sumOfExpensesThatOptionallyConsumesLimitInPLN += sumOfExpensesThatConsumesLimitInPLN;
 
         status.add("EXPENSES : " +sumOfExpensesThatConsumesLimitInEuro + " Euro (" + sumOfExpensesThatConsumesLimitInPLN + " PLN)");
-        status.add("OPTIONAL EXPENSES : " + sumOfExpensesThatOptionallyConsumesLimitInEuro + " Euro (" + sumOfExpensesThatOptionallyConsumesLimitInPLN + " PLN)");
 
         float limitsSum = 0f;
         for (Limit limit : limits) {
@@ -243,8 +244,12 @@ public class MainActivity extends AppCompatActivity
         float optionalBalanceInEuro = (optionalBalanceInPLN == 0f) ? 0f : optionalBalanceInPLN/lastExchangeRate;
 
         status.add("BALANCE : " + balanceInEuro + " Euro (" + balanceInPLN + " PLN)");
-        status.add("OPTIONAL-BALANCE : " + optionalBalanceInEuro + " Euro (" + optionalBalanceInPLN + " PLN)");
 
+        if(sumOfExpensesThatConsumesLimitInPLN != sumOfExpensesThatOptionallyConsumesLimitInPLN) {
+            status.add("");
+            status.add("OPTIONAL EXPENSES : " + sumOfExpensesThatOptionallyConsumesLimitInEuro + " Euro (" + sumOfExpensesThatOptionallyConsumesLimitInPLN + " PLN)");
+            status.add("OPTIONAL BALANCE : " + optionalBalanceInEuro + " Euro (" + optionalBalanceInPLN + " PLN)");
+        }
         return status;
     }
 
@@ -257,6 +262,12 @@ public class MainActivity extends AppCompatActivity
             adapter.add(Dates.format(expense.getDate()) + " | " + expense.getExpenseType() + " | " + expense.getDescription());
         }
         adapter.notifyDataSetChanged();
+        expensesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(getApplicationContext(), "Position: " + position, Toast.LENGTH_SHORT).show();
+            }
+        });
         viewFlipper.setDisplayedChild(1);
     }
 
