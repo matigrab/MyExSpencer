@@ -14,6 +14,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.google.common.base.Optional;
+import com.matpaw.myexspencer.model.Trip;
+import com.matpaw.myexspencer.read.DataReader;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -43,9 +47,18 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        TextView textView = (TextView) navigationView.getHeaderView(0).findViewById(R.id.textView);
-        textView.setText("This is your trip 'Gent 2017' and today is: " + getCurrentDate() + ".");
+        setTripAndCurrentDateInfo(navigationView);
         navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    private void setTripAndCurrentDateInfo(NavigationView navigationView) {
+        TextView textView = (TextView) navigationView.getHeaderView(0).findViewById(R.id.textView);
+        Optional<Trip> activeTrip = DataReader.get().getActiveTrip();
+        if(activeTrip.isPresent()) {
+            textView.setText(activeTrip.get().getTitle() + "  |  " + getCurrentDate());
+        } else {
+            textView.setText("No active trips.");
+        }
     }
 
     @Override
