@@ -22,4 +22,8 @@ public class Dates {
 
         return calendar.get(Calendar.YEAR) + "-" + monthString + "-" + dayString;
     }
+
+    public static boolean theSameDay(Date date1, Date date2) {
+        return format(date1).equals(format(date2));
+    }
 }

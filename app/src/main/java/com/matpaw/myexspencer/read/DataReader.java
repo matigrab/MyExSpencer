@@ -3,6 +3,7 @@ package com.matpaw.myexspencer.read;
 import com.google.common.base.Optional;
 import com.matpaw.myexspencer.cache.DataCache;
 import com.matpaw.myexspencer.model.Expense;
+import com.matpaw.myexspencer.model.Limit;
 import com.matpaw.myexspencer.model.Trip;
 import com.matpaw.myexspencer.utils.Dates;
 
@@ -31,6 +32,14 @@ public class DataReader {
         Optional<Trip> activeTrip = getActiveTrip();
         if(activeTrip.isPresent()) {
             return DataCache.get().getExpensesForTrip(activeTrip.get().getId());
+        }
+        return Collections.EMPTY_SET;
+    }
+
+    public Collection<Limit> getLimitsForActiveTrip() {
+        Optional<Trip> activeTrip = getActiveTrip();
+        if(activeTrip.isPresent()) {
+            return DataCache.get().getLimitsForTrip(activeTrip.get().getId());
         }
         return Collections.EMPTY_SET;
     }
