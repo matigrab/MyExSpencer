@@ -60,6 +60,9 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         setTripAndCurrentDateInfo(navigationView);
         navigationView.setNavigationItemSelectedListener(this);
+
+        ViewFlipper viewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
+        flipToStatusView(viewFlipper);
     }
 
     private void setTripAndCurrentDateInfo(NavigationView navigationView) {
