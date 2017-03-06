@@ -15,8 +15,10 @@ public class Expense implements Comparable<Expense> {
     private float valueInPLN;
     private LimitImpactType limitConsumptionType;
     private boolean confirmedByBank;
+    private PaymentType paymentType;
+    private Date additionDate;
 
-    public Expense(UUID id, Date date, String description, ExpenseType expenseType, String payer, float valueInEuro, float valueInPLN, LimitImpactType limitConsumptionType, boolean confirmedByBank) {
+    public Expense(UUID id, Date date, String description, ExpenseType expenseType, String payer, float valueInEuro, float valueInPLN, LimitImpactType limitConsumptionType, boolean confirmedByBank, PaymentType paymentType) {
         this.id = id;
         this.date = date;
         this.description = description;
@@ -26,6 +28,8 @@ public class Expense implements Comparable<Expense> {
         this.valueInPLN = valueInPLN;
         this.limitConsumptionType = limitConsumptionType;
         this.confirmedByBank = confirmedByBank;
+        this.paymentType = paymentType;
+        this.additionDate = new Date();
     }
 
     public LimitImpactType getLimitImpactType() {
@@ -64,8 +68,25 @@ public class Expense implements Comparable<Expense> {
         return confirmedByBank;
     }
 
+    public PaymentType getPaymentType() {
+        return paymentType;
+    }
+
+    public Date getAdditionDate() {
+        return additionDate;
+    }
+
+    @Override
+    public String toString() {
+        return getId() + ";" + getDescription();
+    }
+
     @Override
     public int compareTo(@NonNull Expense o) {
-        return o.getDate().compareTo(getDate());
+        int compareTo = o.getDate().compareTo(getDate());
+        if(compareTo == 0) {
+            return o.getAdditionDate().compareTo(getAdditionDate());
+        }
+        return compareTo;
     }
 }

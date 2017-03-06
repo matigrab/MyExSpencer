@@ -14,6 +14,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,12 +23,17 @@ import android.widget.ViewFlipper;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
+import com.matpaw.myexspencer.cache.DataCache;
 import com.matpaw.myexspencer.model.Expense;
 import com.matpaw.myexspencer.model.Limit;
 import com.matpaw.myexspencer.model.LimitImpactType;
 import com.matpaw.myexspencer.model.Trip;
 import com.matpaw.myexspencer.read.DataReader;
 import com.matpaw.myexspencer.utils.Dates;
+import com.matpaw.myexspencer.viewhandler.ExpenseViewHandler;
+import com.matpaw.myexspencer.viewhandler.ExpensesViewHandler;
+import com.matpaw.myexspencer.viewhandler.StatusViewHandler;
+import com.matpaw.myexspencer.write.DataWriter;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -37,6 +44,10 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    private StatusViewHandler statusViewHandler;
+    private ExpensesViewHandler expensesViewHandler;
+    private ExpenseViewHandler expenseViewHandler;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,27 +55,46 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
+        DataCache.init(getApplication());
+        DataWriter.init(getApplication());
+
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         setTripAndCurrentDateInfo(navigationView);
         navigationView.setNavigationItemSelectedListener(this);
 
         ViewFlipper viewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
-        flipToStatusView(viewFlipper);
+        initStatusViewHandler(viewFlipper);
+        initExpenseViewHandler(viewFlipper);
+        initExpensesViewHandler(viewFlipper);
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                expenseViewHandler.flipToExpenseView();
+            }
+        });
+
+        statusViewHandler.flipToStatusView();
+    }
+
+    private void initExpenseViewHandler(ViewFlipper viewFlipper) {
+        expenseViewHandler = new ExpenseViewHandler(getApplicationContext(), viewFlipper, (LinearLayout) findViewById(R.id.expense_container));
+    }
+
+    private void initStatusViewHandler(ViewFlipper viewFlipper) {
+        statusViewHandler = new StatusViewHandler(getApplicationContext(), viewFlipper, (ListView) findViewById(R.id.status_container));
+    }
+
+    private void initExpensesViewHandler(ViewFlipper viewFlipper) {
+        expensesViewHandler = new ExpensesViewHandler(getApplicationContext(), viewFlipper, (ListView) findViewById(R.id.expenses_list_view), expenseViewHandler);
+        expenseViewHandler.setExpensesViewHandler(expensesViewHandler);
     }
 
     private void setTripAndCurrentDateInfo(NavigationView navigationView) {
@@ -118,157 +148,14 @@ public class MainActivity extends AppCompatActivity
         ViewFlipper viewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
 
         if (id == R.id.nav_status) {
-            flipToStatusView(viewFlipper);
+            statusViewHandler.flipToStatusView();
         } else if (id == R.id.nav_expenses) {
-            flipToExpensesView(viewFlipper);
+            expensesViewHandler.flipToExpensesView();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
-    }
-
-    private void flipToStatusView(ViewFlipper viewFlipper) {
-        ListView statusListView = (ListView) findViewById(R.id.status_container);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1);
-        statusListView.setAdapter(adapter);
-
-        Date today = Dates.get(2017, 03, 02);
-
-        adapter.add("----- ONLY TODAY -----");
-        for (String statusPart : getStatusForDate(today)) {
-            adapter.add(statusPart);
-        }
-        adapter.add("");
-
-        adapter.add("----- TILL NOW -----");
-        for (String statusPart : getStatusTillDate(today)) {
-            adapter.add(statusPart);
-        }
-        adapter.add("");
-
-        adapter.add("----- TILL END OF TRIP -----");
-        for (String statusPart : getStatusTillDate(DataReader.get().getActiveTrip().get().getEndDate())) {
-            adapter.add(statusPart);
-        }
-        adapter.add("");
-
-        adapter.notifyDataSetChanged();
-        viewFlipper.setDisplayedChild(0);
-    }
-
-    private List<String> getStatusTillDate(Date date) {
-        Collection<Expense> expenses = DataReader.get().getExpensesForActiveTrip();
-        Collection<Limit> limits = DataReader.get().getLimitsForActiveTrip();
-
-        Collection<Expense> expensesBeforeOrTheSameDayAsDate = Lists.newArrayList();
-        for (Expense expense : expenses) {
-            if (expense.getDate().before(date) || Dates.theSameDay(expense.getDate(), date)) {
-                expensesBeforeOrTheSameDayAsDate.add(expense);
-            }
-        }
-
-        Collection<Limit> limitsBeforeOrTheSameDayAsDate = Lists.newArrayList();
-        for (Limit limit : limits) {
-            if(limit.getDate().before(date) || Dates.theSameDay(limit.getDate(), date)) {
-                limitsBeforeOrTheSameDayAsDate.add(limit);
-            }
-        }
-
-        return getStatusInternal(expensesBeforeOrTheSameDayAsDate, limitsBeforeOrTheSameDayAsDate);
-    }
-
-    private List<String> getStatusForDate(Date date) {
-        Collection<Expense> expenses = DataReader.get().getExpensesForActiveTrip();
-        Collection<Limit> limits = DataReader.get().getLimitsForActiveTrip();
-
-        Collection<Expense> expensesForDate = Lists.newArrayList();
-        for (Expense expense : expenses) {
-            if (Dates.theSameDay(expense.getDate(), date)) {
-                expensesForDate.add(expense);
-            }
-        }
-
-        Collection<Limit> limitsForDate = Lists.newArrayList();
-        for (Limit limit : limits) {
-            if(Dates.theSameDay(limit.getDate(), date)) {
-                limitsForDate.add(limit);
-            }
-        }
-
-        return getStatusInternal(expensesForDate, limitsForDate);
-    }
-
-    private List<String> getStatusInternal(Collection<Expense> expenses, Collection<Limit> limits) {
-        List<String> status = Lists.newArrayList();
-
-        float sumOfExpensesThatConsumesLimitInEuro = 0f;
-        float sumOfExpensesThatConsumesLimitInPLN = 0f;
-        float sumOfExpensesThatOptionallyConsumesLimitInEuro = 0f;
-        float sumOfExpensesThatOptionallyConsumesLimitInPLN = 0f;
-        float lastExchangeRate = Constants.DEFAULT_EURO_EXCHANGE_RATE;
-        boolean lastExchangeRateSet = false;
-
-        for (Expense expense : expenses) {
-            if (!lastExchangeRateSet) {
-                lastExchangeRate = expense.getValueInPLN() / expense.getValueInEuro();
-                lastExchangeRateSet = true;
-            }
-
-            if (LimitImpactType.CONSUMES.equals(expense.getLimitImpactType())) {
-                sumOfExpensesThatConsumesLimitInEuro += expense.getValueInEuro();
-                sumOfExpensesThatConsumesLimitInPLN += expense.getValueInPLN();
-            }
-
-            if (LimitImpactType.OPTIONAL.equals(expense.getLimitImpactType())) {
-                sumOfExpensesThatOptionallyConsumesLimitInEuro += expense.getValueInEuro();
-                sumOfExpensesThatOptionallyConsumesLimitInPLN += expense.getValueInPLN();
-            }
-        }
-
-        sumOfExpensesThatOptionallyConsumesLimitInEuro += sumOfExpensesThatConsumesLimitInEuro;
-        sumOfExpensesThatOptionallyConsumesLimitInPLN += sumOfExpensesThatConsumesLimitInPLN;
-
-        status.add("EXPENSES : " +sumOfExpensesThatConsumesLimitInEuro + " Euro (" + sumOfExpensesThatConsumesLimitInPLN + " PLN)");
-
-        float limitsSum = 0f;
-        for (Limit limit : limits) {
-            limitsSum += limit.getValue();
-        }
-
-        status.add("LIMIT : " + limitsSum + " PLN (" + limitsSum/lastExchangeRate + " Euro)");
-
-        float balanceInPLN = limitsSum - sumOfExpensesThatConsumesLimitInPLN;
-        float balanceInEuro = (balanceInPLN == 0f) ? 0f : balanceInPLN / lastExchangeRate;
-        float optionalBalanceInPLN = limitsSum - sumOfExpensesThatOptionallyConsumesLimitInPLN;
-        float optionalBalanceInEuro = (optionalBalanceInPLN == 0f) ? 0f : optionalBalanceInPLN/lastExchangeRate;
-
-        status.add("BALANCE : " + balanceInEuro + " Euro (" + balanceInPLN + " PLN)");
-
-        if(sumOfExpensesThatConsumesLimitInPLN != sumOfExpensesThatOptionallyConsumesLimitInPLN) {
-            status.add("");
-            status.add("OPTIONAL EXPENSES : " + sumOfExpensesThatOptionallyConsumesLimitInEuro + " Euro (" + sumOfExpensesThatOptionallyConsumesLimitInPLN + " PLN)");
-            status.add("OPTIONAL BALANCE : " + optionalBalanceInEuro + " Euro (" + optionalBalanceInPLN + " PLN)");
-        }
-        return status;
-    }
-
-    private void flipToExpensesView(ViewFlipper viewFlipper) {
-        ListView expensesListView = (ListView) findViewById(R.id.expenses_list_view);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1);
-        expensesListView.setAdapter(adapter);
-        Collection<Expense> expenses = DataReader.get().getExpensesForActiveTrip();
-        for (Expense expense : expenses) {
-            adapter.add(Dates.format(expense.getDate()) + " | " + expense.getExpenseType() + " | " + expense.getDescription());
-        }
-        adapter.notifyDataSetChanged();
-        expensesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(getApplicationContext(), "Position: " + position, Toast.LENGTH_SHORT).show();
-            }
-        });
-        viewFlipper.setDisplayedChild(1);
     }
 
     public String getCurrentDate() {

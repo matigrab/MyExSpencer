@@ -1,5 +1,7 @@
 package com.matpaw.myexspencer.cache;
 
+import android.app.Application;
+
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
@@ -8,9 +10,16 @@ import com.matpaw.myexspencer.model.Expense;
 import com.matpaw.myexspencer.model.ExpenseType;
 import com.matpaw.myexspencer.model.Limit;
 import com.matpaw.myexspencer.model.LimitImpactType;
+import com.matpaw.myexspencer.model.PaymentType;
 import com.matpaw.myexspencer.model.Trip;
+import com.matpaw.myexspencer.read.DataReader;
 import com.matpaw.myexspencer.utils.Dates;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -19,6 +28,8 @@ import java.util.UUID;
 
 public class DataCache {
     private static DataCache dataCache;
+    private static Application application;
+    private static final UUID TRIP_TO_GENT_2017_ID = UUID.fromString("fe8175c6-8a61-4e7c-8a38-f2b296edc86d");
 
     private static Set<Trip> trips = Sets.newHashSet();
     private static Set<Expense> expenses = Sets.newHashSet();
@@ -28,7 +39,15 @@ public class DataCache {
 
     private DataCache() {}
 
+    public static void init(Application application) {
+        DataCache.application = application;
+    }
+
     public static DataCache get() {
+        if(application == null) {
+            throw new IllegalStateException("DataCache has to be initialized before usage!");
+        }
+
         if(dataCache == null) {
             dataCache = new DataCache();
             dataCache.reload();
@@ -42,22 +61,41 @@ public class DataCache {
     }
 
     public void reload() {
-        // TODO: reload from file
+        expenses.clear();
+        tripToExpenses.clear();
+
+        UUID activeTripId = TRIP_TO_GENT_2017_ID;
+        try {
+            FileInputStream fileInputStream = application.openFileInput(activeTripId.toString() + ".expenses");
+            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                String[] split = line.split(";");
+                Expense expense = new Expense(UUID.fromString(split[0]), Dates.get(2017, 03, 02), split[1], ExpenseType.DINNER, "mati", 1f, 5f, LimitImpactType.CONSUMES, false, PaymentType.CASH);
+                expenses.add(expense);
+                tripToExpenses.put(activeTripId, expense.getId());
+            }
+            fileInputStream.close();
+        } catch (FileNotFoundException e) {
+            //e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void addTestData() {
-        UUID tripToGent2017Id = UUID.randomUUID();
-        trips.add(new Trip(tripToGent2017Id, "Gent 2017", Dates.get(2017, 03, 01), Dates.get(2017, 03, 05)));
+        trips.add(new Trip(TRIP_TO_GENT_2017_ID, "Gent 2017", Dates.get(2017, 03, 01), Dates.get(2017, 03, 05)));
 
-        for(int i = 1; i <= 2; i++) {
+        /*for(int i = 1; i <= 2; i++) {
             UUID id = UUID.randomUUID();
             float valueInEuro = i;
             float valueInPLN = valueInEuro * 5;
-            Expense expense = new Expense(id, Dates.get(2017, 03, i), "desc " + i, ExpenseType.DINNER, "mati", valueInEuro, valueInPLN, LimitImpactType.CONSUMES, false);
+            Expense expense = new Expense(id, Dates.get(2017, 03, i), "desc " + i, ExpenseType.DINNER, "mati", valueInEuro, valueInPLN, LimitImpactType.CONSUMES, false, PaymentType.CASH);
             expenses.add(expense);
 
-            tripToExpenses.put(tripToGent2017Id, id);
-        }
+            tripToExpenses.put(TRIP_TO_GENT_2017_ID, id);
+        }*/
 
         UUID limit1Id = UUID.randomUUID();
         UUID limit2Id = UUID.randomUUID();
@@ -66,8 +104,8 @@ public class DataCache {
         limits.add(new Limit(limit2Id, Dates.get(2017, 03, 03), 150.0f));
         limits.add(new Limit(limit2Id, Dates.get(2017, 03, 04), 150.0f));
         limits.add(new Limit(limit2Id, Dates.get(2017, 03, 05), 150.0f));
-        tripToLimits.put(tripToGent2017Id, limit1Id);
-        tripToLimits.put(tripToGent2017Id, limit2Id);
+        tripToLimits.put(TRIP_TO_GENT_2017_ID, limit1Id);
+        tripToLimits.put(TRIP_TO_GENT_2017_ID, limit2Id);
     }
 
     public Collection<Expense> getExpensesForTrip(UUID tripId) {

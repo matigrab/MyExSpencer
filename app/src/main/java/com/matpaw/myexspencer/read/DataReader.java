@@ -1,5 +1,7 @@
 package com.matpaw.myexspencer.read;
 
+import android.app.Application;
+
 import com.google.common.base.Optional;
 import com.matpaw.myexspencer.cache.DataCache;
 import com.matpaw.myexspencer.model.Expense;
