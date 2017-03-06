@@ -14,25 +14,120 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
-        <EditText
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/expense_description"/>
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Save"
-            android:id="@+id/save_expense"/>
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Cancel"
-            android:id="@+id/cancel"/>
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Delete"
-            android:id="@+id/delete_expense"/>
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+                <TextView
+                    style="@style/Header"
+                    android:layout_marginTop="0dp"
+                    android:text=" DATE"/>
+                <CalendarView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/expense_calendar"></CalendarView>
+
+                <TextView
+                    style="@style/Header"
+                    android:layout_marginTop="0dp"
+                    android:text=" EXPENSE TYPE"/>
+                <Spinner
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/expense_type"
+                    android:background="@color/colorPrimaryDark"></Spinner>
+
+                <TextView
+                    style="@style/Header"
+                    android:text=" DESCRIPTION"/>
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Put description here."
+                    android:id="@+id/expense_description"/>
+
+                <TextView
+                    style="@style/Header"
+                    android:text=" PAYMENT TYPE"/>
+                <Spinner
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/expense_payment_type"
+                    android:background="@color/colorPrimaryDark"></Spinner>
+
+                <TextView
+                    style="@style/Header"
+                    android:text=" PAYMENT DETAILS"/>
+                <CheckBox
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/expense_disable_auto_currency_exchange"
+                    android:text="Disable auto currency exchange"
+                    android:textSize="14dp"></CheckBox>
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Payment in EURO"
+                    android:inputType="numberDecimal"
+                    android:id="@+id/expense_value_in_euro"/>
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Payment in PLN"
+                    android:inputType="numberDecimal"
+                    android:id="@+id/expense_value_in_pln"/>
+
+                <TextView
+                    style="@style/Header"
+                    android:text=" LIMIT IMPACT TYPE"/>
+                <Spinner
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/expense_limit_impact_type"
+                    android:background="@color/colorPrimaryDark"></Spinner>
+
+                <TextView
+                    style="@style/Header"
+                    android:text=" BANK CONFIRMATION"/>
+                <CheckBox
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Confirmed"
+                    android:textSize="14dp"
+                    android:id="@+id/expense_bank_confirmation"></CheckBox>
+
+                <TextView
+                    style="@style/Header"
+                    android:text=" ACTION: SAVE"/>
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Save"
+                    android:id="@+id/save_expense"/>
+
+                <TextView
+                    style="@style/Header"
+                    android:text=" ACTION: CANCEL"/>
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cancel"
+                    android:id="@+id/cancel"/>
+
+                <TextView
+                    style="@style/Header"
+                    android:text=" ACTION: DELETE"/>
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Delete"
+                    android:id="@+id/delete_expense"/>
+            </LinearLayout>
+        </ScrollView>
     </LinearLayout>
 
 

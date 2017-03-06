@@ -2,9 +2,12 @@ package com.matpaw.myexspencer.viewhandler;
 
 import android.content.Context;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
@@ -24,10 +27,37 @@ public class ExpenseViewHandler {
     private LinearLayout expenseContainer;
     private ExpensesViewHandler expensesViewHandler;
 
+    private Spinner expenseType;
+    private Spinner paymentType;
+    private Spinner limitImpactType;
+
     public ExpenseViewHandler(final Context context, final ViewFlipper viewFlipper, final LinearLayout expenseContainer) {
         this.context = context;
         this.viewFlipper = viewFlipper;
         this.expenseContainer = expenseContainer;
+
+        initFields();
+    }
+
+    private void initFields() {
+        expenseType = (Spinner) expenseContainer.findViewById(R.id.expense_type);
+        paymentType = (Spinner) expenseContainer.findViewById(R.id.expense_payment_type);
+        limitImpactType = (Spinner) expenseContainer.findViewById(R.id.expense_limit_impact_type);
+
+        initSpinner(expenseType, ExpenseType.values());
+        initSpinner(paymentType, PaymentType.values());
+        initSpinner(limitImpactType, LimitImpactType.values());
+    }
+
+    private void initSpinner(Spinner spinner, Object[] values) {
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+
+        for (Object type : values) {
+            adapter.add(type.toString());
+        }
+        adapter.notifyDataSetChanged();
     }
 
     public void flipToExpenseView() {
@@ -47,7 +77,7 @@ public class ExpenseViewHandler {
 
     private void setAllFieldsToDefaultValues() {
         EditText descriptionField = (EditText) expenseContainer.findViewById(R.id.expense_description);
-        descriptionField.setText("DEFAULT VALUE");
+        descriptionField.setText("");
     }
 
     private void initButtons(final UUID expenseId) {
