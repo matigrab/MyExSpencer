@@ -13,12 +13,12 @@ public class Expense implements Comparable<Expense> {
     private String payer;
     private float valueInEuro;
     private float valueInPLN;
-    private LimitImpactType limitConsumptionType;
+    private LimitImpactType limitImpactType;
     private boolean confirmedByBank;
     private PaymentType paymentType;
     private Date additionDate;
 
-    public Expense(UUID id, Date date, String description, ExpenseType expenseType, String payer, float valueInEuro, float valueInPLN, LimitImpactType limitConsumptionType, boolean confirmedByBank, PaymentType paymentType) {
+    public Expense(UUID id, Date date, String description, ExpenseType expenseType, String payer, float valueInEuro, float valueInPLN, LimitImpactType limitImpactType, boolean confirmedByBank, PaymentType paymentType) {
         this.id = id;
         this.date = date;
         this.description = description;
@@ -26,14 +26,14 @@ public class Expense implements Comparable<Expense> {
         this.payer = payer;
         this.valueInEuro = valueInEuro;
         this.valueInPLN = valueInPLN;
-        this.limitConsumptionType = limitConsumptionType;
+        this.limitImpactType = limitImpactType;
         this.confirmedByBank = confirmedByBank;
         this.paymentType = paymentType;
         this.additionDate = new Date();
     }
 
     public LimitImpactType getLimitImpactType() {
-        return limitConsumptionType;
+        return limitImpactType;
     }
 
     public float getValueInEuro() {
