@@ -4,15 +4,15 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_status"
-            android:icon="@drawable/ic_menu_camera"
+            android:icon="@android:drawable/ic_menu_info_details"
             android:title="Status" />
         <item
             android:id="@+id/nav_expenses"
-            android:icon="@drawable/ic_menu_gallery"
+            android:icon="@android:drawable/ic_lock_idle_charging"
             android:title="Expenses" />
         <item
             android:id="@+id/nav_limitations"
-            android:icon="@drawable/ic_menu_slideshow"
+            android:icon="@android:drawable/ic_menu_crop"
             android:title="Limitations" />
         <item
             android:id="@+id/nav_settings"
