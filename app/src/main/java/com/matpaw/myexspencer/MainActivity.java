@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void initExpenseViewHandler(ViewFlipper viewFlipper) {
-        expenseViewHandler = new ExpenseViewHandler(getApplicationContext(), viewFlipper, (LinearLayout) findViewById(R.id.expense_container));
+        expenseViewHandler = new ExpenseViewHandler(getApplicationContext(), MainActivity.this, viewFlipper, (LinearLayout) findViewById(R.id.expense_container));
     }
 
     private void initStatusViewHandler(ViewFlipper viewFlipper) {

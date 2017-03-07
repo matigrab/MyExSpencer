@@ -1,6 +1,8 @@
 package com.matpaw.myexspencer.viewhandler;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -13,6 +15,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
+import com.matpaw.myexspencer.MainActivity;
 import com.matpaw.myexspencer.R;
 import com.matpaw.myexspencer.model.Expense;
 import com.matpaw.myexspencer.model.ExpenseType;
@@ -28,6 +31,7 @@ import java.util.UUID;
 
 public class ExpenseViewHandler {
     private Context context;
+    private MainActivity mainActivity;
     private ViewFlipper viewFlipper;
     private LinearLayout expenseContainer;
     private ExpensesViewHandler expensesViewHandler;
@@ -47,8 +51,9 @@ public class ExpenseViewHandler {
 
     private Date dateFromCalendarView;
 
-    public ExpenseViewHandler(final Context context, final ViewFlipper viewFlipper, final LinearLayout expenseContainer) {
+    public ExpenseViewHandler(final Context context, final MainActivity mainActivity, final ViewFlipper viewFlipper, final LinearLayout expenseContainer) {
         this.context = context;
+        this.mainActivity = mainActivity;
         this.viewFlipper = viewFlipper;
         this.expenseContainer = expenseContainer;
 
@@ -151,9 +156,20 @@ public class ExpenseViewHandler {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DataWriter.get().deleteExpense(getExpense(expenseId));
-                expensesViewHandler.flipToExpensesView();
-                Toast.makeText(context, "Expense removed.", Toast.LENGTH_SHORT).show();
+                new AlertDialog.Builder(mainActivity)
+                        .setTitle("Delete expense")
+                        .setMessage("Do you really want to delete expense?")
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                DataWriter.get().deleteExpense(getExpense(expenseId));
+                                expensesViewHandler.flipToExpensesView();
+                                Toast.makeText(context, "Expense removed.", Toast.LENGTH_SHORT).show();
+                            }})
+                        .setNegativeButton(android.R.string.no, null)
+                        .show();
+
             }
         });
         deleteButton.setVisibility(View.VISIBLE);
