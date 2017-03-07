@@ -36,7 +36,7 @@ public class StatusViewHandler {
     public void flipToStatusView() {
         adapter.clear();
 
-        Date today = Dates.get(2017, 03, 02);
+        Date today = new Date();
 
         adapter.add("----- ONLY TODAY -----");
         for (String statusPart : getStatusForDate(today)) {
