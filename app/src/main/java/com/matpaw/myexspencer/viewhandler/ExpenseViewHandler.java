@@ -1,6 +1,7 @@
 package com.matpaw.myexspencer.viewhandler;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -17,6 +18,7 @@ import com.matpaw.myexspencer.model.Expense;
 import com.matpaw.myexspencer.model.ExpenseType;
 import com.matpaw.myexspencer.model.LimitImpactType;
 import com.matpaw.myexspencer.model.PaymentType;
+import com.matpaw.myexspencer.utils.Dates;
 import com.matpaw.myexspencer.write.DataWriter;
 
 import java.util.Date;
@@ -37,6 +39,8 @@ public class ExpenseViewHandler {
     private EditText valueInEuroEditText;
     private EditText valueInPLNEditText;
     private CheckBox bankConfirmationCheckBox;
+
+    private Date dateFromCalendarView;
 
     public ExpenseViewHandler(final Context context, final ViewFlipper viewFlipper, final LinearLayout expenseContainer) {
         this.context = context;
@@ -60,6 +64,13 @@ public class ExpenseViewHandler {
         initSpinner(expenseTypeSpinner, ExpenseType.values());
         initSpinner(paymentTypeSpinner, PaymentType.values());
         initSpinner(limitImpactTypeSpinner, LimitImpactType.values());
+
+        calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+            @Override
+            public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
+                dateFromCalendarView = Dates.get(year, month, dayOfMonth);
+            }
+        });
     }
 
     private void initSpinner(Spinner spinner, Object[] values) {
@@ -141,7 +152,6 @@ public class ExpenseViewHandler {
     }
 
     private Expense getExpense(UUID expenseId) {
-        Date date = new Date(calendarView.getDate());
         String description = descriptionEditText.getText().toString();
         ExpenseType expenseType = ExpenseType.values()[expenseTypeSpinner.getSelectedItemPosition()];
         PaymentType paymentType = PaymentType.values()[paymentTypeSpinner.getSelectedItemPosition()];
@@ -150,7 +160,7 @@ public class ExpenseViewHandler {
         Float valueInPLN = Float.valueOf(valueInPLNEditText.getText().toString());
         boolean bankConfirmation = bankConfirmationCheckBox.isChecked();
 
-        return new Expense(expenseId, date, new Date(), description, expenseType, "user", valueInEuro, valueInPLN, limitImpactType, bankConfirmation, paymentType);
+        return new Expense(expenseId, dateFromCalendarView, new Date(), description, expenseType, "user", valueInEuro, valueInPLN, limitImpactType, bankConfirmation, paymentType);
     }
 
     public void setExpensesViewHandler(ExpensesViewHandler expensesViewHandler) {
