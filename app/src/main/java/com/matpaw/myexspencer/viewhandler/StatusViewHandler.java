@@ -109,15 +109,8 @@ public class StatusViewHandler {
         float sumOfExpensesThatConsumesLimitInPLN = 0f;
         float sumOfExpensesThatOptionallyConsumesLimitInEuro = 0f;
         float sumOfExpensesThatOptionallyConsumesLimitInPLN = 0f;
-        float lastExchangeRate = Constants.DEFAULT_EURO_EXCHANGE_RATE;
-        boolean lastExchangeRateSet = false;
 
         for (Expense expense : expenses) {
-            if (!lastExchangeRateSet) {
-                lastExchangeRate = expense.getValueInPLN() / expense.getValueInEuro();
-                lastExchangeRateSet = true;
-            }
-
             if (LimitImpactType.CONSUMES.equals(expense.getLimitImpactType())) {
                 sumOfExpensesThatConsumesLimitInEuro += expense.getValueInEuro();
                 sumOfExpensesThatConsumesLimitInPLN += expense.getValueInPLN();
@@ -139,12 +132,14 @@ public class StatusViewHandler {
             limitsSum += limit.getValue();
         }
 
-        status.add("LIMIT : " + limitsSum + " PLN (" + limitsSum/lastExchangeRate + " Euro)");
+        float exchangeRate = DataReader.get().getEuroToPlnExchangeRate();
+
+        status.add("LIMIT : " + limitsSum + " PLN (" + limitsSum/exchangeRate + " Euro)");
 
         float balanceInPLN = limitsSum - sumOfExpensesThatConsumesLimitInPLN;
-        float balanceInEuro = (balanceInPLN == 0f) ? 0f : balanceInPLN / lastExchangeRate;
+        float balanceInEuro = (balanceInPLN == 0f) ? 0f : balanceInPLN / exchangeRate;
         float optionalBalanceInPLN = limitsSum - sumOfExpensesThatOptionallyConsumesLimitInPLN;
-        float optionalBalanceInEuro = (optionalBalanceInPLN == 0f) ? 0f : optionalBalanceInPLN/lastExchangeRate;
+        float optionalBalanceInEuro = (optionalBalanceInPLN == 0f) ? 0f : optionalBalanceInPLN/exchangeRate;
 
         status.add("BALANCE : " + balanceInEuro + " Euro (" + balanceInPLN + " PLN)");
 

@@ -6,7 +6,7 @@ import java.util.Date;
 public class Dates {
     public static Date get(int year, int month, int day) {
         Calendar calendar = Calendar.getInstance();
-        calendar.set(year, month, day);
+        calendar.set(year, month - 1, day); //0-based month
         return calendar.getTime();
     }
 
@@ -15,6 +15,7 @@ public class Dates {
         calendar.setTime(date);
 
         int month = calendar.get(Calendar.MONTH);
+        month += 1; //0-based month
         String monthString = (month < 10) ? "0" + month : "" + month;
 
         int day = calendar.get(Calendar.DAY_OF_MONTH);
@@ -29,6 +30,6 @@ public class Dates {
 
     public static Date get(String dateString) {
         String[] split = dateString.split("-");
-        return get(Integer.valueOf(split[0]), Integer.valueOf(split[1]), Integer.valueOf(split[2]));
+        return get(Integer.valueOf(split[0]), Integer.valueOf(split[1]) + 1, Integer.valueOf(split[2]));
     }
 }

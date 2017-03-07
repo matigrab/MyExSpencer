@@ -4,6 +4,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.annotation.NonNull;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -15,6 +17,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
+import com.matpaw.myexspencer.Constants;
 import com.matpaw.myexspencer.MainActivity;
 import com.matpaw.myexspencer.R;
 import com.matpaw.myexspencer.model.Expense;
@@ -82,6 +85,38 @@ public class ExpenseViewHandler {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
                 dateFromCalendarView = Dates.get(year, month, dayOfMonth);
+            }
+        });
+
+        valueInEuroEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(!hasFocus) {
+                    if(!disableAutoCurrencyExchangeCheckBox.isChecked()) {
+                        String valueInEuro = valueInEuroEditText.getText().toString();
+                        if(validatePaymentValue("Euro", valueInEuro)) {
+                            float valueInEuroFloat = Float.valueOf(valueInEuro);
+                            float valueInPLNAfterExchange = valueInEuroFloat * DataReader.get().getEuroToPlnExchangeRate();
+                            valueInPLNEditText.setText("" + valueInPLNAfterExchange);
+                        }
+                    }
+                }
+            }
+        });
+
+        valueInPLNEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(!hasFocus) {
+                    if(!disableAutoCurrencyExchangeCheckBox.isChecked()) {
+                        String valueInPLN = valueInPLNEditText.getText().toString();
+                        if(validatePaymentValue("PLN", valueInPLN)) {
+                            float valueInPLNFloat = Float.valueOf(valueInPLN);
+                            float valueInEuroAfterExchange = valueInPLNFloat / DataReader.get().getEuroToPlnExchangeRate();
+                            valueInEuroEditText.setText("" + valueInEuroAfterExchange);
+                        }
+                    }
+                }
             }
         });
     }

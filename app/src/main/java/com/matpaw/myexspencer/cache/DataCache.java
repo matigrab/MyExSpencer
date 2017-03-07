@@ -99,18 +99,18 @@ public class DataCache {
 
     private void addMockedData() {
         UUID tripId = Constants.TRIP_TO_GENT_2017_ID;
-        trips.add(new Trip(tripId, "Gent 2017", Dates.get(2017, 02, 01), Dates.get(2017, 02, 20)));
+        trips.add(new Trip(tripId, "Gent 2017", Dates.get(2017, 03, 01), Dates.get(2017, 03, 20)));
 
         UUID limit1Id = UUID.randomUUID();
         UUID limit2Id = UUID.randomUUID();
         UUID limit3Id = UUID.randomUUID();
         UUID limit4Id = UUID.randomUUID();
         UUID limit5Id = UUID.randomUUID();
-        limits.add(new Limit(limit1Id, Dates.get(2017, 02, 01), 90.0f));
-        limits.add(new Limit(limit2Id, Dates.get(2017, 02, 02), 150.0f));
-        limits.add(new Limit(limit3Id, Dates.get(2017, 02, 03), 150.0f));
-        limits.add(new Limit(limit4Id, Dates.get(2017, 02, 04), 150.0f));
-        limits.add(new Limit(limit5Id, Dates.get(2017, 02, 05), 150.0f));
+        limits.add(new Limit(limit1Id, Dates.get(2017, 03, 01), 90.0f));
+        limits.add(new Limit(limit2Id, Dates.get(2017, 03, 02), 150.0f));
+        limits.add(new Limit(limit3Id, Dates.get(2017, 03, 03), 150.0f));
+        limits.add(new Limit(limit4Id, Dates.get(2017, 03, 04), 150.0f));
+        limits.add(new Limit(limit5Id, Dates.get(2017, 03, 05), 150.0f));
         tripToLimits.put(tripId, limit1Id);
         tripToLimits.put(tripId, limit2Id);
         tripToLimits.put(tripId, limit3Id);

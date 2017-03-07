@@ -3,6 +3,7 @@ package com.matpaw.myexspencer.read;
 import android.app.Application;
 
 import com.google.common.base.Optional;
+import com.matpaw.myexspencer.Constants;
 import com.matpaw.myexspencer.cache.DataCache;
 import com.matpaw.myexspencer.model.Expense;
 import com.matpaw.myexspencer.model.Limit;
@@ -44,5 +45,14 @@ public class DataReader {
             return DataCache.get().getLimitsForTrip(activeTrip.get().getId());
         }
         return Collections.EMPTY_SET;
+    }
+
+    public float getEuroToPlnExchangeRate() {
+        for (Expense expense : getExpensesForActiveTrip()) {
+            if(expense.isConfirmedByBank()) {
+                return expense.getValueInPLN() / expense.getValueInEuro();
+            }
+        }
+        return Constants.DEFAULT_EURO_EXCHANGE_RATE;
     }
 }
