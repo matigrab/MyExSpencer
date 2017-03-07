@@ -84,7 +84,7 @@ public class ExpenseViewHandler {
         calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
-                dateFromCalendarView = Dates.get(year, month, dayOfMonth);
+                dateFromCalendarView = Dates.get(year, month + 1, dayOfMonth);
             }
         });
 

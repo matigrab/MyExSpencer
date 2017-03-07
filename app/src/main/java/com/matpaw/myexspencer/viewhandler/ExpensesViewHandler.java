@@ -40,7 +40,8 @@ public class ExpensesViewHandler {
 
         final List<Expense> expenses = Lists.newArrayList(DataReader.get().getExpensesForActiveTrip());
         for (Expense expense : expenses) {
-            adapter.add(Dates.format(expense.getDate()) + " | " + expense.getExpenseType() + " | " + expense.getDescription());
+            String confirmedByBank = (expense.isConfirmedByBank()) ? "(C)" : "(~)";
+            adapter.add(confirmedByBank + " | " + Dates.format(expense.getDate()) + " | " + expense.getExpenseType() + " | " + expense.getDescription());
         }
         adapter.notifyDataSetChanged();
         expensesContainer.setOnItemClickListener(new AdapterView.OnItemClickListener() {
