@@ -2,7 +2,12 @@ package com.matpaw.myexspencer.model;
 
 import android.support.annotation.NonNull;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
+import com.matpaw.myexspencer.utils.Dates;
+
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 public class Expense implements Comparable<Expense> {
@@ -18,7 +23,7 @@ public class Expense implements Comparable<Expense> {
     private PaymentType paymentType;
     private Date additionDate;
 
-    public Expense(UUID id, Date date, String description, ExpenseType expenseType, String payer, float valueInEuro, float valueInPLN, LimitImpactType limitImpactType, boolean confirmedByBank, PaymentType paymentType) {
+    public Expense(UUID id, Date date, Date additionDate, String description, ExpenseType expenseType, String payer, float valueInEuro, float valueInPLN, LimitImpactType limitImpactType, boolean confirmedByBank, PaymentType paymentType) {
         this.id = id;
         this.date = date;
         this.description = description;
@@ -29,7 +34,7 @@ public class Expense implements Comparable<Expense> {
         this.limitImpactType = limitImpactType;
         this.confirmedByBank = confirmedByBank;
         this.paymentType = paymentType;
-        this.additionDate = new Date();
+        this.additionDate = additionDate;
     }
 
     public LimitImpactType getLimitImpactType() {
@@ -78,7 +83,19 @@ public class Expense implements Comparable<Expense> {
 
     @Override
     public String toString() {
-        return getId() + ";" + getDescription();
+        List<String> parts = Lists.newArrayList();
+        parts.add(getId().toString());
+        parts.add(Dates.format(getDate()));
+        parts.add(Dates.format(getAdditionDate()));
+        parts.add(getPayer());
+        parts.add(getDescription());
+        parts.add(getExpenseType().toString());
+        parts.add(getPaymentType().toString());
+        parts.add("" + getValueInEuro());
+        parts.add("" + getValueInPLN());
+        parts.add(getLimitImpactType().toString());
+        parts.add("" + isConfirmedByBank());
+        return Joiner.on(";").join(parts);
     }
 
     @Override

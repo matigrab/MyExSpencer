@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -72,7 +73,20 @@ public class DataCache {
             String line;
             while ((line = bufferedReader.readLine()) != null) {
                 String[] split = line.split(";");
-                Expense expense = new Expense(UUID.fromString(split[0]), Dates.get(2017, 03, 02), split[1], ExpenseType.DINNER, "mati", 1f, 5f, LimitImpactType.CONSUMES, false, PaymentType.CASH);
+
+                UUID id = UUID.fromString(split[0]);
+                Date date = Dates.get(split[1]);
+                Date additionDate = Dates.get(split[2]);
+                String payer = split[3];
+                String description = split[4];
+                ExpenseType expenseType = ExpenseType.valueOf(split[5]);
+                PaymentType paymentType = PaymentType.valueOf(split[6]);
+                Float valueInEuro = Float.valueOf(split[7]);
+                Float valueInPLN = Float.valueOf(split[8]);
+                LimitImpactType limitImpactType = LimitImpactType.valueOf(split[9]);
+                boolean bankConfirmation = Boolean.valueOf(split[10]);
+
+                Expense expense = new Expense(id, date, additionDate, description, expenseType, payer, valueInEuro, valueInPLN, limitImpactType, bankConfirmation, paymentType);
                 expenses.add(expense);
                 tripToExpenses.put(activeTripId, expense.getId());
             }

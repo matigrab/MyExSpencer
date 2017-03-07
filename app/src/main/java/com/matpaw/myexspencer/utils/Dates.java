@@ -26,4 +26,9 @@ public class Dates {
     public static boolean theSameDay(Date date1, Date date2) {
         return format(date1).equals(format(date2));
     }
+
+    public static Date get(String dateString) {
+        String[] split = dateString.split("-");
+        return get(Integer.valueOf(split[0]), Integer.valueOf(split[1]), Integer.valueOf(split[2]));
+    }
 }

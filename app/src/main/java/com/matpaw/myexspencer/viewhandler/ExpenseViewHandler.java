@@ -4,10 +4,11 @@ import android.content.Context;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CalendarView;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
@@ -16,9 +17,9 @@ import com.matpaw.myexspencer.model.Expense;
 import com.matpaw.myexspencer.model.ExpenseType;
 import com.matpaw.myexspencer.model.LimitImpactType;
 import com.matpaw.myexspencer.model.PaymentType;
-import com.matpaw.myexspencer.utils.Dates;
 import com.matpaw.myexspencer.write.DataWriter;
 
+import java.util.Date;
 import java.util.UUID;
 
 public class ExpenseViewHandler {
@@ -27,9 +28,15 @@ public class ExpenseViewHandler {
     private LinearLayout expenseContainer;
     private ExpensesViewHandler expensesViewHandler;
 
-    private Spinner expenseType;
-    private Spinner paymentType;
-    private Spinner limitImpactType;
+    private Spinner expenseTypeSpinner;
+    private Spinner paymentTypeSpinner;
+    private Spinner limitImpactTypeSpinner;
+    private CalendarView calendarView;
+    private EditText descriptionEditText;
+    private CheckBox disableAutoCurrencyExchangeCheckBox;
+    private EditText valueInEuroEditText;
+    private EditText valueInPLNEditText;
+    private CheckBox bankConfirmationCheckBox;
 
     public ExpenseViewHandler(final Context context, final ViewFlipper viewFlipper, final LinearLayout expenseContainer) {
         this.context = context;
@@ -40,13 +47,19 @@ public class ExpenseViewHandler {
     }
 
     private void initFields() {
-        expenseType = (Spinner) expenseContainer.findViewById(R.id.expense_type);
-        paymentType = (Spinner) expenseContainer.findViewById(R.id.expense_payment_type);
-        limitImpactType = (Spinner) expenseContainer.findViewById(R.id.expense_limit_impact_type);
+        calendarView = (CalendarView) expenseContainer.findViewById(R.id.expense_calendar);
+        expenseTypeSpinner = (Spinner) expenseContainer.findViewById(R.id.expense_type);
+        paymentTypeSpinner = (Spinner) expenseContainer.findViewById(R.id.expense_payment_type);
+        limitImpactTypeSpinner = (Spinner) expenseContainer.findViewById(R.id.expense_limit_impact_type);
+        descriptionEditText = (EditText) expenseContainer.findViewById(R.id.expense_description);
+        disableAutoCurrencyExchangeCheckBox = (CheckBox) expenseContainer.findViewById(R.id.expense_disable_auto_currency_exchange);
+        valueInEuroEditText = (EditText) expenseContainer.findViewById(R.id.expense_value_in_euro);
+        valueInPLNEditText = (EditText) expenseContainer.findViewById(R.id.expense_value_in_pln);
+        bankConfirmationCheckBox = (CheckBox) expenseContainer.findViewById(R.id.expense_bank_confirmation);
 
-        initSpinner(expenseType, ExpenseType.values());
-        initSpinner(paymentType, PaymentType.values());
-        initSpinner(limitImpactType, LimitImpactType.values());
+        initSpinner(expenseTypeSpinner, ExpenseType.values());
+        initSpinner(paymentTypeSpinner, PaymentType.values());
+        initSpinner(limitImpactTypeSpinner, LimitImpactType.values());
     }
 
     private void initSpinner(Spinner spinner, Object[] values) {
@@ -69,15 +82,29 @@ public class ExpenseViewHandler {
     }
 
     public void flipToExpenseView(final Expense expense) {
-        EditText descriptionField = (EditText) expenseContainer.findViewById(R.id.expense_description);
-        descriptionField.setText(expense.getDescription());
+        descriptionEditText.setText(expense.getDescription());
+        expenseTypeSpinner.setSelection(ExpenseType.index(expense.getExpenseType()));
+        paymentTypeSpinner.setSelection(PaymentType.index(expense.getPaymentType()));
+        limitImpactTypeSpinner.setSelection(LimitImpactType.index(expense.getLimitImpactType()));
+        calendarView.setDate(expense.getDate().getTime());
+        valueInEuroEditText.setText(""+expense.getValueInEuro());
+        valueInPLNEditText.setText(""+expense.getValueInPLN());
+        disableAutoCurrencyExchangeCheckBox.setChecked(false);
+        bankConfirmationCheckBox.setChecked(expense.isConfirmedByBank());
 
         initButtons(expense.getId());
     }
 
     private void setAllFieldsToDefaultValues() {
-        EditText descriptionField = (EditText) expenseContainer.findViewById(R.id.expense_description);
-        descriptionField.setText("");
+        descriptionEditText.setText("");
+        expenseTypeSpinner.setSelection(0);
+        paymentTypeSpinner.setSelection(0);
+        limitImpactTypeSpinner.setSelection(0);
+        calendarView.setDate(new Date().getTime());
+        valueInEuroEditText.setText("");
+        valueInPLNEditText.setText("");
+        disableAutoCurrencyExchangeCheckBox.setChecked(false);
+        bankConfirmationCheckBox.setChecked(false);
     }
 
     private void initButtons(final UUID expenseId) {
@@ -114,10 +141,16 @@ public class ExpenseViewHandler {
     }
 
     private Expense getExpense(UUID expenseId) {
-        EditText descriptionField = (EditText) expenseContainer.findViewById(R.id.expense_description);
+        Date date = new Date(calendarView.getDate());
+        String description = descriptionEditText.getText().toString();
+        ExpenseType expenseType = ExpenseType.values()[expenseTypeSpinner.getSelectedItemPosition()];
+        PaymentType paymentType = PaymentType.values()[paymentTypeSpinner.getSelectedItemPosition()];
+        LimitImpactType limitImpactType = LimitImpactType.values()[limitImpactTypeSpinner.getSelectedItemPosition()];
+        Float valueInEuro = Float.valueOf(valueInEuroEditText.getText().toString());
+        Float valueInPLN = Float.valueOf(valueInPLNEditText.getText().toString());
+        boolean bankConfirmation = bankConfirmationCheckBox.isChecked();
 
-        Expense expense = new Expense(expenseId, Dates.get(2017, 03, 02), descriptionField.getText().toString(), ExpenseType.DINNER, "mati", 1f, 5f, LimitImpactType.CONSUMES, false, PaymentType.CASH);
-        return expense;
+        return new Expense(expenseId, date, new Date(), description, expenseType, "user", valueInEuro, valueInPLN, limitImpactType, bankConfirmation, paymentType);
     }
 
     public void setExpensesViewHandler(ExpensesViewHandler expensesViewHandler) {
