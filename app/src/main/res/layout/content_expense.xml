@@ -102,28 +102,24 @@
 
                 <TextView
                     style="@style/Header"
-                    android:text=" ACTION: SAVE"/>
+                    android:text=" ACTIONS"/>
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Save"
                     android:id="@+id/save_expense"/>
 
-                <TextView
-                    style="@style/Header"
-                    android:text=" ACTION: CANCEL"/>
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
                     android:text="Cancel"
                     android:id="@+id/cancel"/>
 
-                <TextView
-                    style="@style/Header"
-                    android:text=" ACTION: DELETE"/>
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
                     android:text="Delete"
                     android:id="@+id/delete_expense"/>
             </LinearLayout>

@@ -18,6 +18,8 @@ import com.matpaw.myexspencer.model.Expense;
 import com.matpaw.myexspencer.model.ExpenseType;
 import com.matpaw.myexspencer.model.LimitImpactType;
 import com.matpaw.myexspencer.model.PaymentType;
+import com.matpaw.myexspencer.model.Trip;
+import com.matpaw.myexspencer.read.DataReader;
 import com.matpaw.myexspencer.utils.Dates;
 import com.matpaw.myexspencer.write.DataWriter;
 
@@ -39,6 +41,9 @@ public class ExpenseViewHandler {
     private EditText valueInEuroEditText;
     private EditText valueInPLNEditText;
     private CheckBox bankConfirmationCheckBox;
+    private Button saveButton;
+    private Button cancelButton;
+    private Button deleteButton;
 
     private Date dateFromCalendarView;
 
@@ -60,6 +65,9 @@ public class ExpenseViewHandler {
         valueInEuroEditText = (EditText) expenseContainer.findViewById(R.id.expense_value_in_euro);
         valueInPLNEditText = (EditText) expenseContainer.findViewById(R.id.expense_value_in_pln);
         bankConfirmationCheckBox = (CheckBox) expenseContainer.findViewById(R.id.expense_bank_confirmation);
+        saveButton = (Button) expenseContainer.findViewById(R.id.save_expense);
+        cancelButton = (Button) expenseContainer.findViewById(R.id.cancel);
+        deleteButton = (Button) expenseContainer.findViewById(R.id.delete_expense);
 
         initSpinner(expenseTypeSpinner, ExpenseType.values());
         initSpinner(paymentTypeSpinner, PaymentType.values());
@@ -90,6 +98,7 @@ public class ExpenseViewHandler {
         setAllFieldsToDefaultValues();
 
         initButtons(newExpenseId);
+        deleteButton.setVisibility(View.GONE);
     }
 
     public void flipToExpenseView(final Expense expense) {
@@ -119,16 +128,16 @@ public class ExpenseViewHandler {
     }
 
     private void initButtons(final UUID expenseId) {
-        Button saveButton = (Button) expenseContainer.findViewById(R.id.save_expense);
-        Button cancelButton = (Button) expenseContainer.findViewById(R.id.cancel);
-        Button deleteButton = (Button) expenseContainer.findViewById(R.id.delete_expense);
-
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DataWriter.get().saveExpense(getExpense(expenseId));
-                expensesViewHandler.flipToExpensesView();
-                Toast.makeText(context, "Expense saved.", Toast.LENGTH_SHORT).show();
+                boolean valid = validateDataFromFields();
+
+                if(valid) {
+                    DataWriter.get().saveExpense(getExpense(expenseId));
+                    expensesViewHandler.flipToExpensesView();
+                    Toast.makeText(context, "Expense saved.", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -147,8 +156,56 @@ public class ExpenseViewHandler {
                 Toast.makeText(context, "Expense removed.", Toast.LENGTH_SHORT).show();
             }
         });
+        deleteButton.setVisibility(View.VISIBLE);
 
         viewFlipper.setDisplayedChild(2);
+    }
+
+    private boolean validateDataFromFields() {
+        String description = descriptionEditText.getText().toString();
+        if(description.isEmpty()) {
+            showInvalidFieldValueMessage("Description can not be empty!");
+            return false;
+        }
+
+        if(!validatePaymentValue("Euro", valueInEuroEditText.getText().toString())) {
+            return false;
+        }
+
+        if(!validatePaymentValue("PLN", valueInPLNEditText.getText().toString())) {
+            return false;
+        }
+
+        Trip activeTrip = DataReader.get().getActiveTrip().get();
+        if(dateFromCalendarView.before(activeTrip.getStartDate()) || dateFromCalendarView.after(activeTrip.getEndDate())) {
+            showInvalidFieldValueMessage("Expense date is not in trip timerange!");
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean validatePaymentValue(String fieldName, String value) {
+        try {
+            if(value.isEmpty()) {
+                showInvalidFieldValueMessage("Value in " + fieldName + " can not be empty!");
+                return false;
+            }
+
+            Float valueInEuro = Float.valueOf(value);
+            if(valueInEuro <= 0f) {
+                showInvalidFieldValueMessage("Value in " + fieldName + " has to be greather than 0.");
+                return false;
+            }
+        } catch (NumberFormatException ex) {
+            showInvalidFieldValueMessage("Value in " + fieldName + " is not numeric value!");
+            return false;
+        }
+        return true;
+    }
+
+    private void showInvalidFieldValueMessage(String message) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
 
     private Expense getExpense(UUID expenseId) {
