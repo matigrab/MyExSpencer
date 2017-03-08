@@ -107,14 +107,32 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    boolean backForExitPressedOnce = false;
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
+            resetBackButton();
+        } else if (expenseViewHandler.isExpenseViewActive()) {
+            expensesViewHandler.flipToExpensesView();
+            resetBackButton();
+        } else if (expensesViewHandler.isExpensesViewActive()) {
+            statusViewHandler.flipToStatusView();
+            resetBackButton();
         } else {
-            super.onBackPressed();
+            if (!backForExitPressedOnce) {
+                Toast.makeText(this, "Press back button once again to exit", Toast.LENGTH_SHORT).show();
+                backForExitPressedOnce = true;
+            } else {
+                resetBackButton();
+                super.onBackPressed();
+            }
         }
+    }
+
+    private void resetBackButton() {
+        backForExitPressedOnce = false;
     }
 
     @Override

@@ -35,6 +35,10 @@ public class StatusViewHandler {
         statusContainer.setAdapter(adapter);
     }
 
+    public boolean isStatusViewActive() {
+        return viewFlipper.getDisplayedChild() == 0;
+    }
+
     public void flipToStatusView() {
         adapter.clear();
 

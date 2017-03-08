@@ -30,6 +30,10 @@ public class ExpensesViewHandler {
         this.expenseViewHandler = expenseViewHandler;
     }
 
+    public boolean isExpensesViewActive() {
+        return viewFlipper.getDisplayedChild() == 1;
+    }
+
     private void initAdapter(final Context context) {
         adapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1);
         expensesContainer.setAdapter(adapter);

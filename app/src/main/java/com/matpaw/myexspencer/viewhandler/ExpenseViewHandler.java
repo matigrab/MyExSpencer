@@ -63,6 +63,10 @@ public class ExpenseViewHandler {
         initFields();
     }
 
+    public boolean isExpenseViewActive() {
+        return viewFlipper.getDisplayedChild() == 2;
+    }
+
     private void initFields() {
         calendarView = (CalendarView) expenseContainer.findViewById(R.id.expense_calendar);
         expenseTypeSpinner = (Spinner) expenseContainer.findViewById(R.id.expense_type);
