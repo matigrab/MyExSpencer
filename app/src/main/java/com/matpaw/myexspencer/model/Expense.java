@@ -4,11 +4,15 @@ import android.support.annotation.NonNull;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.matpaw.myexspencer.Constants;
 import com.matpaw.myexspencer.utils.Dates;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+
+import static com.matpaw.myexspencer.Constants.DEFAULT_SCALE;
 
 public class Expense implements Comparable<Expense> {
     private UUID id;
@@ -16,14 +20,14 @@ public class Expense implements Comparable<Expense> {
     private String description;
     private ExpenseType expenseType;
     private String payer;
-    private float valueInEuro;
-    private float valueInPLN;
+    private BigDecimal valueInEuro;
+    private BigDecimal valueInPLN;
     private LimitImpactType limitImpactType;
     private boolean confirmedByBank;
     private PaymentType paymentType;
     private Date additionDate;
 
-    public Expense(UUID id, Date date, Date additionDate, String description, ExpenseType expenseType, String payer, float valueInEuro, float valueInPLN, LimitImpactType limitImpactType, boolean confirmedByBank, PaymentType paymentType) {
+    public Expense(UUID id, Date date, Date additionDate, String description, ExpenseType expenseType, String payer, BigDecimal valueInEuro, BigDecimal valueInPLN, LimitImpactType limitImpactType, boolean confirmedByBank, PaymentType paymentType) {
         this.id = id;
         this.date = date;
         this.description = description;
@@ -41,7 +45,7 @@ public class Expense implements Comparable<Expense> {
         return limitImpactType;
     }
 
-    public float getValueInEuro() {
+    public BigDecimal getValueInEuro() {
         return valueInEuro;
     }
 
@@ -65,7 +69,7 @@ public class Expense implements Comparable<Expense> {
         return description;
     }
 
-    public float getValueInPLN() {
+    public BigDecimal getValueInPLN() {
         return valueInPLN;
     }
 
@@ -91,8 +95,8 @@ public class Expense implements Comparable<Expense> {
         parts.add(getDescription());
         parts.add(getExpenseType().toString());
         parts.add(getPaymentType().toString());
-        parts.add("" + getValueInEuro());
-        parts.add("" + getValueInPLN());
+        parts.add("" + getValueInEuro().setScale(DEFAULT_SCALE, BigDecimal.ROUND_HALF_UP));
+        parts.add("" + getValueInPLN().setScale(DEFAULT_SCALE, BigDecimal.ROUND_HALF_UP));
         parts.add(getLimitImpactType().toString());
         parts.add("" + isConfirmedByBank());
         return Joiner.on(";").join(parts);

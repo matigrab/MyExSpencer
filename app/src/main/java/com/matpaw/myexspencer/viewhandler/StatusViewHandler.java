@@ -14,9 +14,11 @@ import com.matpaw.myexspencer.model.LimitImpactType;
 import com.matpaw.myexspencer.read.DataReader;
 import com.matpaw.myexspencer.utils.Dates;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class StatusViewHandler {
     private ViewFlipper viewFlipper;
@@ -105,45 +107,45 @@ public class StatusViewHandler {
     private List<String> getStatusInternal(Collection<Expense> expenses, Collection<Limit> limits) {
         List<String> status = Lists.newArrayList();
 
-        float sumOfExpensesThatConsumesLimitInEuro = 0f;
-        float sumOfExpensesThatConsumesLimitInPLN = 0f;
-        float sumOfExpensesThatOptionallyConsumesLimitInEuro = 0f;
-        float sumOfExpensesThatOptionallyConsumesLimitInPLN = 0f;
+        BigDecimal sumOfExpensesThatConsumesLimitInEuro = BigDecimal.ZERO;
+        BigDecimal sumOfExpensesThatConsumesLimitInPLN = BigDecimal.ZERO;
+        BigDecimal sumOfExpensesThatOptionallyConsumesLimitInEuro = BigDecimal.ZERO;
+        BigDecimal sumOfExpensesThatOptionallyConsumesLimitInPLN = BigDecimal.ZERO;
 
         for (Expense expense : expenses) {
             if (LimitImpactType.CONSUMES.equals(expense.getLimitImpactType())) {
-                sumOfExpensesThatConsumesLimitInEuro += expense.getValueInEuro();
-                sumOfExpensesThatConsumesLimitInPLN += expense.getValueInPLN();
+                sumOfExpensesThatConsumesLimitInEuro.add(expense.getValueInEuro());
+                sumOfExpensesThatConsumesLimitInPLN.add(expense.getValueInPLN());
             }
 
             if (LimitImpactType.OPTIONAL.equals(expense.getLimitImpactType())) {
-                sumOfExpensesThatOptionallyConsumesLimitInEuro += expense.getValueInEuro();
-                sumOfExpensesThatOptionallyConsumesLimitInPLN += expense.getValueInPLN();
+                sumOfExpensesThatOptionallyConsumesLimitInEuro.add(expense.getValueInEuro());
+                sumOfExpensesThatOptionallyConsumesLimitInPLN.add(expense.getValueInPLN());
             }
         }
 
-        sumOfExpensesThatOptionallyConsumesLimitInEuro += sumOfExpensesThatConsumesLimitInEuro;
-        sumOfExpensesThatOptionallyConsumesLimitInPLN += sumOfExpensesThatConsumesLimitInPLN;
+        sumOfExpensesThatOptionallyConsumesLimitInEuro.add(sumOfExpensesThatConsumesLimitInEuro);
+        sumOfExpensesThatOptionallyConsumesLimitInPLN.add(sumOfExpensesThatConsumesLimitInPLN);
 
         status.add("EXPENSES : " +sumOfExpensesThatConsumesLimitInEuro + " Euro (" + sumOfExpensesThatConsumesLimitInPLN + " PLN)");
 
-        float limitsSum = 0f;
+        final BigDecimal limitsSum = BigDecimal.ZERO;;
         for (Limit limit : limits) {
-            limitsSum += limit.getValue();
+            limitsSum.add(limit.getValue());
         }
 
-        float exchangeRate = DataReader.get().getEuroToPlnExchangeRate();
+        BigDecimal exchangeRate = DataReader.get().getEuroToPlnExchangeRate();
 
-        status.add("LIMIT : " + limitsSum + " PLN (" + limitsSum/exchangeRate + " Euro)");
+        status.add("LIMIT : " + limitsSum + " PLN (" + limitsSum.divide(exchangeRate) + " Euro)");
 
-        float balanceInPLN = limitsSum - sumOfExpensesThatConsumesLimitInPLN;
-        float balanceInEuro = (balanceInPLN == 0f) ? 0f : balanceInPLN / exchangeRate;
-        float optionalBalanceInPLN = limitsSum - sumOfExpensesThatOptionallyConsumesLimitInPLN;
-        float optionalBalanceInEuro = (optionalBalanceInPLN == 0f) ? 0f : optionalBalanceInPLN/exchangeRate;
+        BigDecimal balanceInPLN = limitsSum.subtract(sumOfExpensesThatConsumesLimitInPLN);
+        BigDecimal balanceInEuro = balanceInPLN.divide(exchangeRate);
+        BigDecimal optionalBalanceInPLN = limitsSum.subtract(sumOfExpensesThatOptionallyConsumesLimitInPLN);
+        BigDecimal optionalBalanceInEuro = optionalBalanceInPLN.divide(exchangeRate);
 
         status.add("BALANCE : " + balanceInEuro + " Euro (" + balanceInPLN + " PLN)");
 
-        if(sumOfExpensesThatConsumesLimitInPLN != sumOfExpensesThatOptionallyConsumesLimitInPLN) {
+        if(!Objects.equals(sumOfExpensesThatConsumesLimitInPLN, sumOfExpensesThatOptionallyConsumesLimitInPLN)) {
             status.add("");
             status.add("OPTIONAL EXPENSES : " + sumOfExpensesThatOptionallyConsumesLimitInEuro + " Euro (" + sumOfExpensesThatOptionallyConsumesLimitInPLN + " PLN)");
             status.add("OPTIONAL BALANCE : " + optionalBalanceInEuro + " Euro (" + optionalBalanceInPLN + " PLN)");

@@ -4,8 +4,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.annotation.NonNull;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -17,7 +15,6 @@ import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
-import com.matpaw.myexspencer.Constants;
 import com.matpaw.myexspencer.MainActivity;
 import com.matpaw.myexspencer.R;
 import com.matpaw.myexspencer.model.Expense;
@@ -29,8 +26,11 @@ import com.matpaw.myexspencer.read.DataReader;
 import com.matpaw.myexspencer.utils.Dates;
 import com.matpaw.myexspencer.write.DataWriter;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.UUID;
+
+import static com.matpaw.myexspencer.Constants.DEFAULT_SCALE;
 
 public class ExpenseViewHandler {
     private Context context;
@@ -81,10 +81,11 @@ public class ExpenseViewHandler {
         initSpinner(paymentTypeSpinner, PaymentType.values());
         initSpinner(limitImpactTypeSpinner, LimitImpactType.values());
 
+        dateFromCalendarView = new Date();
         calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
-                dateFromCalendarView = Dates.get(year, month + 1, dayOfMonth);
+                dateFromCalendarView = Dates.get(year, month, dayOfMonth);
             }
         });
 
@@ -95,9 +96,9 @@ public class ExpenseViewHandler {
                     if(!disableAutoCurrencyExchangeCheckBox.isChecked()) {
                         String valueInEuro = valueInEuroEditText.getText().toString();
                         if(validatePaymentValue("Euro", valueInEuro)) {
-                            float valueInEuroFloat = Float.valueOf(valueInEuro);
-                            float valueInPLNAfterExchange = valueInEuroFloat * DataReader.get().getEuroToPlnExchangeRate();
-                            valueInPLNEditText.setText("" + valueInPLNAfterExchange);
+                            BigDecimal valueInEuroFloat = new BigDecimal(valueInEuro);
+                            BigDecimal valueInPLNAfterExchange = valueInEuroFloat.multiply(DataReader.get().getEuroToPlnExchangeRate());
+                            valueInPLNEditText.setText("" + valueInPLNAfterExchange.setScale(DEFAULT_SCALE, BigDecimal.ROUND_HALF_EVEN));
                         }
                     }
                 }
@@ -111,9 +112,9 @@ public class ExpenseViewHandler {
                     if(!disableAutoCurrencyExchangeCheckBox.isChecked()) {
                         String valueInPLN = valueInPLNEditText.getText().toString();
                         if(validatePaymentValue("PLN", valueInPLN)) {
-                            float valueInPLNFloat = Float.valueOf(valueInPLN);
-                            float valueInEuroAfterExchange = valueInPLNFloat / DataReader.get().getEuroToPlnExchangeRate();
-                            valueInEuroEditText.setText("" + valueInEuroAfterExchange);
+                            BigDecimal valueInPLNFloat = new BigDecimal(valueInPLN);
+                            BigDecimal valueInEuroAfterExchange = valueInPLNFloat.divide(DataReader.get().getEuroToPlnExchangeRate());
+                            valueInEuroEditText.setText("" + valueInEuroAfterExchange.setScale(DEFAULT_SCALE, BigDecimal.ROUND_HALF_EVEN));
                         }
                     }
                 }
@@ -264,8 +265,8 @@ public class ExpenseViewHandler {
         ExpenseType expenseType = ExpenseType.values()[expenseTypeSpinner.getSelectedItemPosition()];
         PaymentType paymentType = PaymentType.values()[paymentTypeSpinner.getSelectedItemPosition()];
         LimitImpactType limitImpactType = LimitImpactType.values()[limitImpactTypeSpinner.getSelectedItemPosition()];
-        Float valueInEuro = Float.valueOf(valueInEuroEditText.getText().toString());
-        Float valueInPLN = Float.valueOf(valueInPLNEditText.getText().toString());
+        BigDecimal valueInEuro = new BigDecimal(valueInEuroEditText.getText().toString());
+        BigDecimal valueInPLN = new BigDecimal(valueInPLNEditText.getText().toString());
         boolean bankConfirmation = bankConfirmationCheckBox.isChecked();
 
         return new Expense(expenseId, dateFromCalendarView, new Date(), description, expenseType, "user", valueInEuro, valueInPLN, limitImpactType, bankConfirmation, paymentType);

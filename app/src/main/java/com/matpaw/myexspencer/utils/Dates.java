@@ -30,6 +30,6 @@ public class Dates {
 
     public static Date get(String dateString) {
         String[] split = dateString.split("-");
-        return get(Integer.valueOf(split[0]), Integer.valueOf(split[1]) + 1, Integer.valueOf(split[2]));
+        return get(Integer.valueOf(split[0]), Integer.valueOf(split[1]), Integer.valueOf(split[2]));
     }
 }

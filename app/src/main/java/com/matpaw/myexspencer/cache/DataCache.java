@@ -20,6 +20,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -80,8 +81,8 @@ public class DataCache {
                 String description = split[4];
                 ExpenseType expenseType = ExpenseType.valueOf(split[5]);
                 PaymentType paymentType = PaymentType.valueOf(split[6]);
-                Float valueInEuro = Float.valueOf(split[7]);
-                Float valueInPLN = Float.valueOf(split[8]);
+                BigDecimal valueInEuro = new BigDecimal(split[7]);
+                BigDecimal valueInPLN = new BigDecimal(split[8]);
                 LimitImpactType limitImpactType = LimitImpactType.valueOf(split[9]);
                 boolean bankConfirmation = Boolean.valueOf(split[10]);
 
@@ -106,11 +107,11 @@ public class DataCache {
         UUID limit3Id = UUID.randomUUID();
         UUID limit4Id = UUID.randomUUID();
         UUID limit5Id = UUID.randomUUID();
-        limits.add(new Limit(limit1Id, Dates.get(2017, 03, 01), 90.0f));
-        limits.add(new Limit(limit2Id, Dates.get(2017, 03, 02), 150.0f));
-        limits.add(new Limit(limit3Id, Dates.get(2017, 03, 03), 150.0f));
-        limits.add(new Limit(limit4Id, Dates.get(2017, 03, 04), 150.0f));
-        limits.add(new Limit(limit5Id, Dates.get(2017, 03, 05), 150.0f));
+        limits.add(new Limit(limit1Id, Dates.get(2017, 03, 01), new BigDecimal(90.0f)));
+        limits.add(new Limit(limit2Id, Dates.get(2017, 03, 02), new BigDecimal(150.0f)));
+        limits.add(new Limit(limit3Id, Dates.get(2017, 03, 03), new BigDecimal(150.0f)));
+        limits.add(new Limit(limit4Id, Dates.get(2017, 03, 04), new BigDecimal(150.0f)));
+        limits.add(new Limit(limit5Id, Dates.get(2017, 03, 05), new BigDecimal(150.0f)));
         tripToLimits.put(tripId, limit1Id);
         tripToLimits.put(tripId, limit2Id);
         tripToLimits.put(tripId, limit3Id);
