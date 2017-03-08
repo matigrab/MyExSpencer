@@ -6,6 +6,7 @@ import android.content.Context;
 import com.google.common.collect.Lists;
 import com.matpaw.myexspencer.cache.DataCache;
 import com.matpaw.myexspencer.model.Expense;
+import com.matpaw.myexspencer.model.Limit;
 import com.matpaw.myexspencer.read.DataReader;
 
 import java.io.FileNotFoundException;
@@ -13,6 +14,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.UUID;
 
 public class DataWriter {
@@ -54,8 +56,6 @@ public class DataWriter {
             FileOutputStream fileOutputStream = application.openFileOutput(activeTripId.toString() + ".expenses", Context.MODE_PRIVATE);
             fileOutputStream.write(toCSV(expensesToSave).getBytes());
             fileOutputStream.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -63,10 +63,10 @@ public class DataWriter {
         DataCache.get().reload();
     }
 
-    private String toCSV(Collection<Expense> expenses) {
+    private <T> String toCSV(Collection<T> objects) {
         StringBuilder stringBuilder = new StringBuilder();
-        for (Expense expense : expenses) {
-            stringBuilder.append(expense.toString() + "\n");
+        for (T object : objects) {
+            stringBuilder.append(object.toString()).append("\n");
         }
         return stringBuilder.toString();
     }
@@ -101,5 +101,34 @@ public class DataWriter {
         }
 
         return expensesToSave;
+    }
+
+    public void saveLimit(Limit limitToSave) {
+        Set<Limit> limits = DataReader.get().getLimitsForActiveTrip();
+        if (!limits.add(limitToSave)) {
+            // update operation
+            limits.remove(limitToSave);
+            limits.add(limitToSave);
+        }
+        saveLimits(limits);
+    }
+
+    public void deleteLimit(Limit limitToDelete) {
+        Set<Limit> limits = DataReader.get().getLimitsForActiveTrip();
+        limits.remove(limitToDelete);
+        saveLimits(limits);
+    }
+
+    private void saveLimits(Collection<Limit> limitsToSave) {
+        UUID activeTripId = DataReader.get().getActiveTrip().get().getId();
+        try {
+            FileOutputStream fileOutputStream = application.openFileOutput(activeTripId.toString() + ".limits", Context.MODE_PRIVATE);
+            fileOutputStream.write(toCSV(limitsToSave).getBytes());
+            fileOutputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        DataCache.get().reload();
     }
 }

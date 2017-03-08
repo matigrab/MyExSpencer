@@ -13,6 +13,7 @@ import com.matpaw.myexspencer.utils.Dates;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Set;
 
 public class DataReader {
     private static DataReader dataReader;
@@ -40,7 +41,7 @@ public class DataReader {
         return Collections.EMPTY_SET;
     }
 
-    public Collection<Limit> getLimitsForActiveTrip() {
+    public Set<Limit> getLimitsForActiveTrip() {
         Optional<Trip> activeTrip = getActiveTrip();
         if(activeTrip.isPresent()) {
             return DataCache.get().getLimitsForTrip(activeTrip.get().getId());

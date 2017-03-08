@@ -34,7 +34,7 @@ public class DataCache {
 
     private static Set<Trip> trips = Sets.newHashSet();
     private static Set<Expense> expenses = Sets.newHashSet();
-    private static Set<Limit> limits = Sets.newHashSet();
+    private static Set<Limit> limits = Sets.newTreeSet();
     private static Multimap<UUID, UUID> tripToExpenses = HashMultimap.create();
     private static Multimap<UUID, UUID> tripToLimits = HashMultimap.create();
 
@@ -64,38 +64,63 @@ public class DataCache {
     public void reload() {
         expenses.clear();
         tripToExpenses.clear();
+        limits.clear();
 
         UUID activeTripId = Constants.TRIP_TO_GENT_2017_ID;
         try {
-            FileInputStream fileInputStream = application.openFileInput(activeTripId.toString() + ".expenses");
-            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
-            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-            String line;
-            while ((line = bufferedReader.readLine()) != null) {
-                String[] split = line.split(";");
-
-                UUID id = UUID.fromString(split[0]);
-                Date date = Dates.get(split[1]);
-                Date additionDate = Dates.get(split[2]);
-                String payer = split[3];
-                String description = split[4];
-                ExpenseType expenseType = ExpenseType.valueOf(split[5]);
-                PaymentType paymentType = PaymentType.valueOf(split[6]);
-                BigDecimal valueInEuro = new BigDecimal(split[7]);
-                BigDecimal valueInPLN = new BigDecimal(split[8]);
-                LimitImpactType limitImpactType = LimitImpactType.valueOf(split[9]);
-                boolean bankConfirmation = Boolean.valueOf(split[10]);
-
-                Expense expense = new Expense(id, date, additionDate, description, expenseType, payer, valueInEuro, valueInPLN, limitImpactType, bankConfirmation, paymentType);
-                expenses.add(expense);
-                tripToExpenses.put(activeTripId, expense.getId());
-            }
-            fileInputStream.close();
+            loadExpenses(activeTripId);
+            loadLimits(activeTripId);
         } catch (FileNotFoundException e) {
             //e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void loadExpenses(UUID activeTripId) throws IOException {
+        FileInputStream fileInputStream = application.openFileInput(activeTripId.toString() + ".expenses");
+        InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
+        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+        String line;
+        while ((line = bufferedReader.readLine()) != null) {
+            String[] split = line.split(";");
+
+            UUID id = UUID.fromString(split[0]);
+            Date date = Dates.get(split[1]);
+            Date additionDate = Dates.get(split[2]);
+            String payer = split[3];
+            String description = split[4];
+            ExpenseType expenseType = ExpenseType.valueOf(split[5]);
+            PaymentType paymentType = PaymentType.valueOf(split[6]);
+            BigDecimal valueInEuro = new BigDecimal(split[7]);
+            BigDecimal valueInPLN = new BigDecimal(split[8]);
+            LimitImpactType limitImpactType = LimitImpactType.valueOf(split[9]);
+            boolean bankConfirmation = Boolean.valueOf(split[10]);
+
+            Expense expense = new Expense(id, date, additionDate, description, expenseType, payer, valueInEuro, valueInPLN, limitImpactType, bankConfirmation, paymentType);
+            expenses.add(expense);
+            tripToExpenses.put(activeTripId, expense.getId());
+        }
+        fileInputStream.close();
+    }
+
+    private void loadLimits(UUID activeTripId) throws IOException {
+        FileInputStream fileInputStream = application.openFileInput(activeTripId.toString() + ".limits");
+        InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
+        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+        String line;
+        while ((line = bufferedReader.readLine()) != null) {
+            String[] split = line.split(";");
+
+            UUID id = UUID.fromString(split[0]);
+            Date date = Dates.get(split[1]);
+            BigDecimal valueInPLN = new BigDecimal(split[2]);
+
+            Limit limit = new Limit(id, date, valueInPLN);
+            limits.add(limit);
+            tripToLimits.put(activeTripId, limit.getId());
+        }
+        fileInputStream.close();
     }
 
     private void addMockedData() {
@@ -131,15 +156,14 @@ public class DataCache {
         return expensesForTrip;
     }
 
-    public Collection<Limit> getLimitsForTrip(UUID tripId) {
-        List<Limit> limitsForTrip = Lists.newArrayList();
+    public Set<Limit> getLimitsForTrip(UUID tripId) {
+        Set<Limit> limitsForTrip = Sets.newTreeSet();
         Collection<UUID> limitIds = tripToLimits.get(tripId);
         for (Limit limit : limits) {
             if(limitIds.contains(limit.getId())) {
                 limitsForTrip.add(limit);
             }
         }
-        Collections.sort(limitsForTrip);
         return limitsForTrip;
     }
 }
