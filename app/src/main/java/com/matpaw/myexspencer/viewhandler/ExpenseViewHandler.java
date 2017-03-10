@@ -28,6 +28,7 @@ import com.matpaw.myexspencer.utils.Dates;
 import com.matpaw.myexspencer.write.DataWriter;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Date;
 import java.util.UUID;
 
@@ -122,7 +123,7 @@ public class ExpenseViewHandler {
                         String valueInPLN = valueInPLNEditText.getText().toString();
                         if(validatePaymentValue("PLN", valueInPLN)) {
                             BigDecimal valueInPLNFloat = new BigDecimal(valueInPLN);
-                            BigDecimal valueInEuroAfterExchange = valueInPLNFloat.divide(DataReader.get().getEuroToPlnExchangeRate());
+                            BigDecimal valueInEuroAfterExchange = valueInPLNFloat.divide(DataReader.get().getEuroToPlnExchangeRate(), 2, RoundingMode.HALF_UP);
                             valueInEuroEditText.setText("" + valueInEuroAfterExchange.setScale(DEFAULT_SCALE, BigDecimal.ROUND_HALF_EVEN));
                         }
                     }
@@ -188,7 +189,7 @@ public class ExpenseViewHandler {
         } else {
             BigDecimal valueInEuro = new BigDecimal(valueInEuroEditText.getText().toString());
             BigDecimal valueInPLN = new BigDecimal(valueInPLNEditText.getText().toString());
-            expenseExchangeRateTextView.setText("Exchange rate: " + valueInPLN.divide(valueInEuro));
+            expenseExchangeRateTextView.setText("Exchange rate: " + valueInPLN.divide(valueInEuro, 2, RoundingMode.HALF_UP));
         }
     }
 

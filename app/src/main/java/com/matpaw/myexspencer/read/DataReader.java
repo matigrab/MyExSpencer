@@ -11,6 +11,7 @@ import com.matpaw.myexspencer.model.Trip;
 import com.matpaw.myexspencer.utils.Dates;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
@@ -52,7 +53,7 @@ public class DataReader {
     public BigDecimal getEuroToPlnExchangeRate() {
         for (Expense expense : getExpensesForActiveTrip()) {
             if(expense.isConfirmedByBank()) {
-                return expense.getValueInPLN().divide(expense.getValueInEuro());
+                return expense.getValueInPLN().divide(expense.getValueInEuro(), 2, RoundingMode.HALF_UP);
             }
         }
         return Constants.DEFAULT_EURO_EXCHANGE_RATE;

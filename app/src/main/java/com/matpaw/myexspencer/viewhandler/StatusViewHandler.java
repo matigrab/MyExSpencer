@@ -15,6 +15,7 @@ import com.matpaw.myexspencer.read.DataReader;
 import com.matpaw.myexspencer.utils.Dates;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -140,12 +141,12 @@ public class StatusViewHandler {
 
         BigDecimal exchangeRate = DataReader.get().getEuroToPlnExchangeRate();
 
-        status.add("LIMIT : " + limitsSum + " PLN (" + limitsSum.divide(exchangeRate) + " Euro)");
+        status.add("LIMIT : " + limitsSum + " PLN (" + limitsSum.divide(exchangeRate, 2, RoundingMode.HALF_UP) + " Euro)");
 
         BigDecimal balanceInPLN = limitsSum.subtract(sumOfExpensesThatConsumesLimitInPLN);
-        BigDecimal balanceInEuro = balanceInPLN.divide(exchangeRate);
+        BigDecimal balanceInEuro = balanceInPLN.divide(exchangeRate, 2, RoundingMode.HALF_UP);
         BigDecimal optionalBalanceInPLN = limitsSum.subtract(sumOfExpensesThatOptionallyConsumesLimitInPLN);
-        BigDecimal optionalBalanceInEuro = optionalBalanceInPLN.divide(exchangeRate);
+        BigDecimal optionalBalanceInEuro = optionalBalanceInPLN.divide(exchangeRate, 2, RoundingMode.HALF_UP);
 
         status.add("BALANCE : " + balanceInEuro + " Euro (" + balanceInPLN + " PLN)");
 
