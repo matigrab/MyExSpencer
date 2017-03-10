@@ -80,6 +80,11 @@
                     android:hint="Payment in PLN"
                     android:inputType="numberDecimal"
                     android:id="@+id/expense_value_in_pln"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textStyle="italic"
+                    android:id="@+id/expense_exchange_rate"/>
 
                 <TextView
                     style="@style/Header"

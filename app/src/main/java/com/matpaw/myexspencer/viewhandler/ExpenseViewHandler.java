@@ -12,6 +12,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
@@ -47,6 +48,7 @@ public class ExpenseViewHandler {
     private CheckBox disableAutoCurrencyExchangeCheckBox;
     private EditText valueInEuroEditText;
     private EditText valueInPLNEditText;
+    private TextView expenseExchangeRateTextView;
     private CheckBox bankConfirmationCheckBox;
     private Button saveButton;
     private Button cancelButton;
@@ -76,6 +78,7 @@ public class ExpenseViewHandler {
         disableAutoCurrencyExchangeCheckBox = (CheckBox) expenseContainer.findViewById(R.id.expense_disable_auto_currency_exchange);
         valueInEuroEditText = (EditText) expenseContainer.findViewById(R.id.expense_value_in_euro);
         valueInPLNEditText = (EditText) expenseContainer.findViewById(R.id.expense_value_in_pln);
+        expenseExchangeRateTextView = (TextView) expenseContainer.findViewById(R.id.expense_exchange_rate);
         bankConfirmationCheckBox = (CheckBox) expenseContainer.findViewById(R.id.expense_bank_confirmation);
         saveButton = (Button) expenseContainer.findViewById(R.id.save_expense);
         cancelButton = (Button) expenseContainer.findViewById(R.id.cancel);
@@ -106,6 +109,8 @@ public class ExpenseViewHandler {
                         }
                     }
                 }
+
+                reloadExchangeRate();
             }
         });
 
@@ -122,6 +127,8 @@ public class ExpenseViewHandler {
                         }
                     }
                 }
+
+                reloadExchangeRate();
             }
         });
     }
@@ -142,6 +149,8 @@ public class ExpenseViewHandler {
 
         setAllFieldsToDefaultValues();
 
+        reloadExchangeRate();
+
         initButtons(newExpenseId);
         deleteButton.setVisibility(View.GONE);
     }
@@ -157,6 +166,7 @@ public class ExpenseViewHandler {
         disableAutoCurrencyExchangeCheckBox.setChecked(false);
         bankConfirmationCheckBox.setChecked(expense.isConfirmedByBank());
 
+        reloadExchangeRate();
         initButtons(expense.getId());
     }
 
@@ -170,6 +180,16 @@ public class ExpenseViewHandler {
         valueInPLNEditText.setText("");
         disableAutoCurrencyExchangeCheckBox.setChecked(false);
         bankConfirmationCheckBox.setChecked(false);
+    }
+
+    private void reloadExchangeRate() {
+        if(valueInEuroEditText.getText().toString().isEmpty() || valueInPLNEditText.getText().toString().isEmpty()) {
+            expenseExchangeRateTextView.setText("Exchange rate: " + DataReader.get().getEuroToPlnExchangeRate());
+        } else {
+            BigDecimal valueInEuro = new BigDecimal(valueInEuroEditText.getText().toString());
+            BigDecimal valueInPLN = new BigDecimal(valueInPLNEditText.getText().toString());
+            expenseExchangeRateTextView.setText("Exchange rate: " + valueInPLN.divide(valueInEuro));
+        }
     }
 
     private void initButtons(final UUID expenseId) {
