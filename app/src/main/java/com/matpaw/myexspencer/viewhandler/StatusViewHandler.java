@@ -118,24 +118,24 @@ public class StatusViewHandler {
 
         for (Expense expense : expenses) {
             if (LimitImpactType.CONSUMES.equals(expense.getLimitImpactType())) {
-                sumOfExpensesThatConsumesLimitInEuro.add(expense.getValueInEuro());
-                sumOfExpensesThatConsumesLimitInPLN.add(expense.getValueInPLN());
+                sumOfExpensesThatConsumesLimitInEuro = sumOfExpensesThatConsumesLimitInEuro.add(expense.getValueInEuro());
+                sumOfExpensesThatConsumesLimitInPLN = sumOfExpensesThatConsumesLimitInPLN.add(expense.getValueInPLN());
             }
 
             if (LimitImpactType.OPTIONAL.equals(expense.getLimitImpactType())) {
-                sumOfExpensesThatOptionallyConsumesLimitInEuro.add(expense.getValueInEuro());
-                sumOfExpensesThatOptionallyConsumesLimitInPLN.add(expense.getValueInPLN());
+                sumOfExpensesThatOptionallyConsumesLimitInEuro = sumOfExpensesThatOptionallyConsumesLimitInEuro.add(expense.getValueInEuro());
+                sumOfExpensesThatOptionallyConsumesLimitInPLN = sumOfExpensesThatOptionallyConsumesLimitInPLN.add(expense.getValueInPLN());
             }
         }
 
-        sumOfExpensesThatOptionallyConsumesLimitInEuro.add(sumOfExpensesThatConsumesLimitInEuro);
-        sumOfExpensesThatOptionallyConsumesLimitInPLN.add(sumOfExpensesThatConsumesLimitInPLN);
+        sumOfExpensesThatOptionallyConsumesLimitInEuro = sumOfExpensesThatOptionallyConsumesLimitInEuro.add(sumOfExpensesThatConsumesLimitInEuro);
+        sumOfExpensesThatOptionallyConsumesLimitInPLN = sumOfExpensesThatOptionallyConsumesLimitInPLN.add(sumOfExpensesThatConsumesLimitInPLN);
 
         status.add("EXPENSES : " +sumOfExpensesThatConsumesLimitInEuro + " Euro (" + sumOfExpensesThatConsumesLimitInPLN + " PLN)");
 
-        final BigDecimal limitsSum = BigDecimal.ZERO;;
+        BigDecimal limitsSum = BigDecimal.ZERO;;
         for (Limit limit : limits) {
-            limitsSum.add(limit.getValue());
+            limitsSum = limitsSum.add(limit.getValue());
         }
 
         BigDecimal exchangeRate = DataReader.get().getEuroToPlnExchangeRate();

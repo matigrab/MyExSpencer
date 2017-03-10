@@ -62,14 +62,10 @@ public class DataCache {
     }
 
     public void reload() {
-        expenses.clear();
-        tripToExpenses.clear();
-        limits.clear();
-
         UUID activeTripId = Constants.TRIP_TO_GENT_2017_ID;
         try {
             loadExpenses(activeTripId);
-            loadLimits(activeTripId);
+            //loadLimits(activeTripId);
         } catch (FileNotFoundException e) {
             //e.printStackTrace();
         } catch (IOException e) {
@@ -78,6 +74,9 @@ public class DataCache {
     }
 
     private void loadExpenses(UUID activeTripId) throws IOException {
+        expenses.clear();
+        tripToExpenses.clear();
+
         FileInputStream fileInputStream = application.openFileInput(activeTripId.toString() + ".expenses");
         InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
         BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
@@ -105,6 +104,8 @@ public class DataCache {
     }
 
     private void loadLimits(UUID activeTripId) throws IOException {
+        limits.clear();
+        
         FileInputStream fileInputStream = application.openFileInput(activeTripId.toString() + ".limits");
         InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
         BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
