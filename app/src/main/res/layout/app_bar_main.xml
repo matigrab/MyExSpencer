@@ -32,6 +32,8 @@
             <include layout="@layout/content_status" />
             <include layout="@layout/content_expenses"/>
             <include layout="@layout/content_expense"/>
+            <include layout="@layout/content_limits"/>
+            <include layout="@layout/content_limit"/>
 
         </ViewFlipper>
     </LinearLayout>

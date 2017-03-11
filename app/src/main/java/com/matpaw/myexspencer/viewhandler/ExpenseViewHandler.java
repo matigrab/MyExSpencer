@@ -166,6 +166,7 @@ public class ExpenseViewHandler {
         valueInPLNEditText.setText(""+expense.getValueInPLN());
         disableAutoCurrencyExchangeCheckBox.setChecked(false);
         bankConfirmationCheckBox.setChecked(expense.isConfirmedByBank());
+        dateFromCalendarView = expense.getDate();
 
         reloadExchangeRate();
         initButtons(expense.getId());
@@ -181,6 +182,7 @@ public class ExpenseViewHandler {
         valueInPLNEditText.setText("");
         disableAutoCurrencyExchangeCheckBox.setChecked(false);
         bankConfirmationCheckBox.setChecked(false);
+        dateFromCalendarView = new Date();
     }
 
     private void reloadExchangeRate() {

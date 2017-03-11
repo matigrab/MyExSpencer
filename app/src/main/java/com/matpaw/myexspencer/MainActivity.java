@@ -27,11 +27,14 @@ import com.matpaw.myexspencer.cache.DataCache;
 import com.matpaw.myexspencer.model.Expense;
 import com.matpaw.myexspencer.model.Limit;
 import com.matpaw.myexspencer.model.LimitImpactType;
+import com.matpaw.myexspencer.model.PaymentType;
 import com.matpaw.myexspencer.model.Trip;
 import com.matpaw.myexspencer.read.DataReader;
 import com.matpaw.myexspencer.utils.Dates;
 import com.matpaw.myexspencer.viewhandler.ExpenseViewHandler;
 import com.matpaw.myexspencer.viewhandler.ExpensesViewHandler;
+import com.matpaw.myexspencer.viewhandler.LimitViewHandler;
+import com.matpaw.myexspencer.viewhandler.LimitsViewHandler;
 import com.matpaw.myexspencer.viewhandler.StatusViewHandler;
 import com.matpaw.myexspencer.write.DataWriter;
 
@@ -44,9 +47,13 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    private FloatingActionButton fab;
+
     private StatusViewHandler statusViewHandler;
     private ExpensesViewHandler expensesViewHandler;
     private ExpenseViewHandler expenseViewHandler;
+    private LimitsViewHandler limitsViewHandler;
+    private LimitViewHandler limitViewHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,8 +79,10 @@ public class MainActivity extends AppCompatActivity
         initStatusViewHandler(viewFlipper);
         initExpenseViewHandler(viewFlipper);
         initExpensesViewHandler(viewFlipper);
+        initLimitViewHandler(viewFlipper);
+        initLimitsViewHandler(viewFlipper);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -95,6 +104,15 @@ public class MainActivity extends AppCompatActivity
     private void initExpensesViewHandler(ViewFlipper viewFlipper) {
         expensesViewHandler = new ExpensesViewHandler(getApplicationContext(), viewFlipper, (ListView) findViewById(R.id.expenses_list_view), expenseViewHandler);
         expenseViewHandler.setExpensesViewHandler(expensesViewHandler);
+    }
+
+    private void initLimitViewHandler(ViewFlipper viewFlipper) {
+        limitViewHandler = new LimitViewHandler(getApplicationContext(), MainActivity.this, viewFlipper, (LinearLayout) findViewById(R.id.limit_container));
+    }
+
+    private void initLimitsViewHandler(ViewFlipper viewFlipper) {
+        limitsViewHandler = new LimitsViewHandler(getApplicationContext(), viewFlipper, (ListView) findViewById(R.id.limits_list_view), limitViewHandler);
+        limitViewHandler.setLimitsViewHandler(limitsViewHandler);
     }
 
     private void setTripAndCurrentDateInfo(NavigationView navigationView) {
@@ -119,6 +137,13 @@ public class MainActivity extends AppCompatActivity
             resetBackButton();
         } else if (expensesViewHandler.isExpensesViewActive()) {
             statusViewHandler.flipToStatusView();
+            resetBackButton();
+        } else if (limitsViewHandler.isExpensesViewActive()) {
+            statusViewHandler.flipToStatusView();
+            resetBackButton();
+        }
+        else if(limitViewHandler.isExpenseViewActive()) {
+            limitsViewHandler.flipToLimitsView();
             resetBackButton();
         } else {
             if (!backForExitPressedOnce) {
@@ -167,8 +192,28 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_status) {
             statusViewHandler.flipToStatusView();
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    expenseViewHandler.flipToExpenseView();
+                }
+            });
         } else if (id == R.id.nav_expenses) {
             expensesViewHandler.flipToExpensesView();
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    expenseViewHandler.flipToExpenseView();
+                }
+            });
+        } else if (id == R.id.nav_limitations) {
+            limitsViewHandler.flipToLimitsView();
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    limitViewHandler.flipToLimitView();
+                }
+            });
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

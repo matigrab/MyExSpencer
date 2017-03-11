@@ -65,7 +65,7 @@ public class DataCache {
         UUID activeTripId = Constants.TRIP_TO_GENT_2017_ID;
         try {
             loadExpenses(activeTripId);
-            //loadLimits(activeTripId);
+            loadLimits(activeTripId);
         } catch (FileNotFoundException e) {
             //e.printStackTrace();
         } catch (IOException e) {
@@ -105,7 +105,8 @@ public class DataCache {
 
     private void loadLimits(UUID activeTripId) throws IOException {
         limits.clear();
-        
+        tripToLimits.clear();
+
         FileInputStream fileInputStream = application.openFileInput(activeTripId.toString() + ".limits");
         InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
         BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
@@ -115,9 +116,10 @@ public class DataCache {
 
             UUID id = UUID.fromString(split[0]);
             Date date = Dates.get(split[1]);
+            Date additionDate = Dates.get(split[1]);
             BigDecimal valueInPLN = new BigDecimal(split[2]);
 
-            Limit limit = new Limit(id, date, valueInPLN);
+            Limit limit = new Limit(id, date, additionDate, valueInPLN);
             limits.add(limit);
             tripToLimits.put(activeTripId, limit.getId());
         }
@@ -126,23 +128,7 @@ public class DataCache {
 
     private void addMockedData() {
         UUID tripId = Constants.TRIP_TO_GENT_2017_ID;
-        trips.add(new Trip(tripId, "Gent 2017", Dates.get(2017, 03, 01), Dates.get(2017, 03, 20)));
-
-        UUID limit1Id = UUID.randomUUID();
-        UUID limit2Id = UUID.randomUUID();
-        UUID limit3Id = UUID.randomUUID();
-        UUID limit4Id = UUID.randomUUID();
-        UUID limit5Id = UUID.randomUUID();
-        limits.add(new Limit(limit1Id, Dates.get(2017, 03, 01), new BigDecimal(90.0f)));
-        limits.add(new Limit(limit2Id, Dates.get(2017, 03, 02), new BigDecimal(150.0f)));
-        limits.add(new Limit(limit3Id, Dates.get(2017, 03, 03), new BigDecimal(150.0f)));
-        limits.add(new Limit(limit4Id, Dates.get(2017, 03, 04), new BigDecimal(150.0f)));
-        limits.add(new Limit(limit5Id, Dates.get(2017, 03, 05), new BigDecimal(150.0f)));
-        tripToLimits.put(tripId, limit1Id);
-        tripToLimits.put(tripId, limit2Id);
-        tripToLimits.put(tripId, limit3Id);
-        tripToLimits.put(tripId, limit4Id);
-        tripToLimits.put(tripId, limit5Id);
+        trips.add(new Trip(tripId, "Gent 2017", Dates.get(2017, 03, 01), Dates.get(2017, 03, 30)));
     }
 
     public Collection<Expense> getExpensesForTrip(UUID tripId) {

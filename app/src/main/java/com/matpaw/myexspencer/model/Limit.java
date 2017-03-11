@@ -16,11 +16,13 @@ import static com.matpaw.myexspencer.Constants.DEFAULT_SCALE;
 public class Limit implements Comparable<Limit> {
     private UUID id;
     private Date date;
+    private Date additionDate;
     private BigDecimal value;
 
-    public Limit(UUID id, Date date, BigDecimal value) {
+    public Limit(UUID id, Date date, Date additionDate, BigDecimal value) {
         this.id = id;
         this.date = date;
+        this.additionDate = additionDate;
         this.value = value;
     }
 
@@ -34,6 +36,10 @@ public class Limit implements Comparable<Limit> {
 
     public Date getDate() {
         return date;
+    }
+
+    public Date getAdditionDate() {
+        return additionDate;
     }
 
     @Override
